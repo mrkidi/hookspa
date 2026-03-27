@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hook Spa — Web3 Narrative & Brand Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --mint: #7FFFD4;
+  --mint2: #3ECFA0;
+  --ink: #080C0A;
+  --ink2: #0F1710;
+  --offwhite: #EEF0EC;
+  --muted: #7A8A80;
+  --line: rgba(127,255,212,0.12);
+  --glow: rgba(127,255,212,0.06);
+  --yellow: #FFE566;
+  --red: #FF6B6B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--offwhite);font-family:'DM Mono',monospace;font-size:14px;line-height:1.7;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;}
+.cursor{width:8px;height:8px;background:var(--mint);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;mix-blend-mode:difference;}
+.cursor-ring{width:32px;height:32px;border:1px solid rgba(127,255,212,0.4);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transition:all .35s cubic-bezier(.16,1,.3,1);}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:22px 48px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid transparent;transition:all .3s;}
+nav.scrolled{background:rgba(8,12,10,0.93);border-color:var(--line);backdrop-filter:blur(12px);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;color:var(--mint);text-decoration:none;cursor:pointer;background:none;border:none;}
+.nav-links{display:flex;gap:32px;list-style:none;align-items:center;}
+.nav-links a{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--mint);}
+.nav-diag-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);background:var(--mint);padding:9px 18px;border:none;cursor:pointer;transition:background .2s;}
+.nav-diag-btn:hover{background:var(--offwhite);}
+.page{display:none;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulseBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.anim1{animation:fadeUp .8s .1s ease both;}
+.anim2{animation:fadeUp .8s .25s ease both;}
+.anim3{animation:fadeUp .8s .4s ease both;}
+.anim4{animation:fadeUp .8s .55s ease both;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.container{max-width:1160px;margin:0 auto;padding:0 48px;}
+.section-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mint);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.section-label::before{content:'';width:24px;height:1px;background:var(--mint);opacity:.5;display:inline-block;flex-shrink:0;}
+.btn-primary{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:var(--mint);padding:14px 28px;text-decoration:none;display:inline-block;border:none;cursor:pointer;transition:background .2s;}
+.btn-primary:hover{background:var(--offwhite);}
+.btn-ghost{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint);border:1px solid rgba(127,255,212,.3);padding:14px 28px;text-decoration:none;display:inline-block;background:none;cursor:pointer;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--mint);background:var(--glow);}
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:120px 48px 80px;position:relative;overflow:hidden;gap:48px;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 30% 50%,rgba(62,207,160,.07) 0%,transparent 70%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 30%,transparent 100%);pointer-events:none;}
+.hero-left{position:relative;z-index:2;}
+.hero-eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mint2);margin-bottom:20px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,8vw,108px);line-height:.92;letter-spacing:.01em;color:var(--offwhite);margin-bottom:24px;}
+.hero-title .accent{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;font-size:.85em;}
+.hero-sub{font-size:14px;color:var(--muted);line-height:1.8;max-width:440px;margin-bottom:44px;}
+.hero-sub strong{color:var(--offwhite);font-weight:400;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+.hero-right{position:relative;z-index:2;display:flex;justify-content:center;}
+.hero-img-wrap{width:100%;max-width:520px;border-radius:4px;overflow:hidden;border:1px solid var(--line);position:relative;}
+.hero-img-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(127,255,212,.08) 0%,transparent 60%);z-index:1;pointer-events:none;}
+.hero-img-wrap img{width:100%;display:block;}
+.marquee-wrap{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:16px 0;background:rgba(127,255,212,.02);}
+.marquee-track{display:flex;animation:marquee 28s linear infinite;white-space:nowrap;}
+.marquee-item{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.18em;color:var(--muted);padding:0 32px;flex-shrink:0;}
+.marquee-item .dot{color:var(--mint);margin-right:32px;}
+.about{padding:120px 0;border-top:1px solid var(--line);}
+.about-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start;}
+.about-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,60px);line-height:1;color:var(--offwhite);margin-bottom:28px;}
+.about-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.about-body{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:16px;}
+.about-body strong{color:var(--offwhite);font-weight:400;}
+.about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:40px;}
+.stat-box{background:var(--ink2);padding:22px 18px;transition:background .2s;}
+.stat-box:hover{background:rgba(127,255,212,.04);}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--mint);line-height:1;}
+.stat-label{font-size:11px;color:var(--muted);letter-spacing:.1em;margin-top:4px;}
+.chars-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;}
+.char-card{border:1px solid var(--line);padding:22px 24px;margin-bottom:14px;transition:all .2s;position:relative;overflow:hidden;}
+.char-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mint);transform:scaleY(0);transform-origin:bottom;transition:transform .3s;}
+.char-card:hover::before{transform:scaleY(1);}
+.char-card:hover{border-color:rgba(127,255,212,.3);background:var(--glow);}
+.char-emoji{font-size:26px;margin-bottom:8px;}
+.char-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.1em;color:var(--offwhite);margin-bottom:2px;}
+.char-role{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint2);margin-bottom:8px;}
+.char-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+.services{padding:120px 0;border-top:1px solid var(--line);}
+.services-header{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-bottom:64px;align-items:end;}
+.services-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,72px);line-height:.95;color:var(--offwhite);}
+.services-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.services-intro{font-size:14px;color:var(--muted);line-height:1.8;align-self:end;}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+.service-card{background:var(--ink);padding:34px 26px;transition:background .25s;position:relative;overflow:hidden;}
+.service-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--mint);transform:scaleX(0);transform-origin:left;transition:transform .35s;}
+.service-card:hover{background:rgba(127,255,212,.03);}
+.service-card:hover::after{transform:scaleX(1);}
+.svc-num{font-size:10px;letter-spacing:.2em;color:var(--mint);margin-bottom:18px;opacity:.7;}
+.svc-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;color:var(--offwhite);margin-bottom:10px;line-height:1.1;}
+.svc-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;}
+.svc-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.tag{font-size:10px;letter-spacing:.1em;padding:3px 10px;border:1px solid var(--line);color:var(--muted);}
+.portfolio{padding:120px 0;border-top:1px solid var(--line);}
+.portfolio-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,72px);line-height:.95;color:var(--offwhite);margin-bottom:14px;}
+.portfolio-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.portfolio-intro{font-size:14px;color:var(--muted);max-width:480px;line-height:1.75;margin-bottom:56px;}
+.portfolio-list{display:flex;flex-direction:column;gap:1px;background:var(--line);}
+.pi{background:var(--ink);display:grid;grid-template-columns:72px 1fr;gap:28px;padding:26px 28px;align-items:center;transition:background .2s;}
+.pi:hover{background:rgba(127,255,212,.03);}
+.pi-num{font-size:11px;letter-spacing:.16em;color:var(--mint);opacity:.6;}
+.pi-type{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint2);margin-bottom:3px;}
+.pi-project{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;color:var(--offwhite);margin-bottom:5px;}
+.pi-desc{font-size:13px;color:var(--muted);line-height:1.6;max-width:560px;}
+.pi-result{font-size:11px;color:var(--mint2);letter-spacing:.1em;margin-top:8px;display:flex;align-items:center;gap:6px;}
+.pi-result::before{content:'✦';font-size:8px;color:var(--mint);}
+.who-for{padding:120px 0;border-top:1px solid var(--line);}
+.who-for-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,60px);line-height:1;color:var(--offwhite);margin-bottom:40px;}
+.who-for-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);}
+.who-col{padding:36px 32px;}
+.who-col.for{background:rgba(127,255,212,.03);}
+.who-col.not{background:var(--ink);}
+.who-col-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.who-col.for .who-col-label{color:var(--mint);}
+.who-col.not .who-col-label{color:var(--muted);}
+.who-col-label::before{content:'';width:16px;height:1px;background:currentColor;opacity:.5;display:inline-block;}
+.who-item{font-size:13.5px;color:var(--muted);line-height:1.7;padding:11px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start;}
+.who-item:last-child{border-bottom:none;}
+.who-item strong{color:var(--offwhite);font-weight:400;}
+.wi-icon-for{color:var(--mint);font-size:11px;flex-shrink:0;margin-top:3px;}
+.wi-icon-not{color:#555;font-size:11px;flex-shrink:0;margin-top:3px;}
+.testimonials{padding:120px 0;border-top:1px solid var(--line);background:var(--ink2);}
+.testi-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,72px);line-height:.95;color:var(--offwhite);margin-bottom:56px;}
+.testi-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+.tcard{background:var(--ink2);padding:34px 26px;display:flex;flex-direction:column;justify-content:space-between;gap:22px;transition:background .2s;}
+.tcard:hover{background:rgba(127,255,212,.03);}
+.tcard-open{font-family:'Instrument Serif',serif;font-style:italic;font-size:32px;color:var(--mint);line-height:1;display:block;margin-bottom:12px;}
+.tcard-quote{font-family:'Instrument Serif',serif;font-style:italic;font-size:15px;line-height:1.65;color:var(--offwhite);}
+.tcard-name{font-size:12px;color:var(--offwhite);letter-spacing:.08em;}
+.tcard-role{font-size:10px;color:var(--mint2);letter-spacing:.14em;text-transform:uppercase;margin-top:3px;}
+.process{padding:120px 0;border-top:1px solid var(--line);background:var(--ink2);}
+.process-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,72px);line-height:.95;color:var(--offwhite);margin-bottom:56px;}
+.process-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);}
+.step{background:var(--ink2);padding:34px 22px;transition:background .2s;}
+.step:hover{background:rgba(127,255,212,.03);}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:52px;color:rgba(127,255,212,.12);line-height:1;margin-bottom:14px;}
+.step-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.08em;color:var(--offwhite);margin-bottom:10px;}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+.vocab{padding:80px 0;border-top:1px solid var(--line);}
+.vocab-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,4vw,48px);color:var(--offwhite);margin-bottom:36px;}
+.vocab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+.vocab-item{background:var(--ink);padding:20px 22px;transition:background .2s;}
+.vocab-item:hover{background:var(--glow);}
+.vocab-word{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;color:var(--mint);margin-bottom:5px;}
+.vocab-def{font-size:12px;color:var(--muted);line-height:1.55;}
+.xfeed{padding:80px 0;border-top:1px solid var(--line);}
+.xfeed-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;flex-wrap:wrap;gap:16px;}
+.xfeed-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,4vw,48px);color:var(--offwhite);line-height:1;}
+.xfeed-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.xposts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+.xpost{background:var(--ink);padding:26px 22px;display:flex;flex-direction:column;gap:16px;transition:background .2s;}
+.xpost:hover{background:rgba(127,255,212,.03);}
+.xpost-text{font-size:13.5px;color:var(--offwhite);line-height:1.7;flex:1;}
+.xpost-meta{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted);letter-spacing:.1em;}
+.xpost-handle{color:var(--mint2);}
+.cta-section{padding:140px 0;border-top:1px solid var(--line);text-align:center;position:relative;overflow:hidden;}
+.cta-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(62,207,160,.06) 0%,transparent 70%);pointer-events:none;}
+.cta-label{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--mint2);margin-bottom:20px;}
+.cta-heading{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,9vw,110px);line-height:.92;color:var(--offwhite);margin-bottom:24px;}
+.cta-heading em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.cta-sub{font-size:14px;color:var(--muted);max-width:420px;margin:0 auto 44px;line-height:1.75;}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+footer{border-top:1px solid var(--line);padding:36px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.12em;color:var(--mint);}
+.footer-meta{font-size:11px;color:var(--muted);letter-spacing:.08em;}
+.footer-link{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+.footer-link:hover{color:var(--mint);}
+
+/* DIAGNOSTIC */
+.diag-hero{max-width:860px;margin:0 auto;padding:100px 48px 48px;text-align:center;}
+.diag-badge{display:inline-block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mint2);border:1px solid var(--line);padding:6px 16px;margin-bottom:28px;}
+.diag-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,9vw,92px);line-height:.92;color:var(--offwhite);margin-bottom:20px;}
+.diag-title em{color:var(--mint);font-family:'Instrument Serif',serif;font-style:italic;}
+.diag-sub{font-size:14px;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.8;}
+.diag-sub strong{color:var(--offwhite);font-weight:400;}
+.diag-tool{max-width:860px;margin:0 auto;padding:0 48px 100px;}
+.diag-step-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mint);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.diag-step-label::before{content:'';width:20px;height:1px;background:var(--mint);opacity:.5;display:inline-block;}
+.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-bottom:28px;}
+.type-btn{background:var(--ink);border:none;padding:18px 12px;cursor:pointer;text-align:center;transition:background .2s;position:relative;}
+.type-btn:hover{background:var(--glow);}
+.type-btn.active{background:rgba(127,255,212,.08);}
+.type-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--mint);}
+.type-icon{font-size:20px;display:block;margin-bottom:6px;}
+.type-name{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;}
+.type-btn.active .type-name{color:var(--mint);}
+.input-hint{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:10px;}
+.input-wrap{position:relative;margin-bottom:14px;}
+textarea{width:100%;background:var(--ink2);border:1px solid var(--line);color:var(--offwhite);font-family:'DM Mono',monospace;font-size:14px;line-height:1.75;padding:18px 20px;resize:vertical;min-height:150px;outline:none;border-radius:0;transition:border-color .2s;}
+textarea:focus{border-color:rgba(127,255,212,.4);}
+textarea::placeholder{color:var(--muted);opacity:.6;}
+.char-count{position:absolute;bottom:10px;right:14px;font-size:10px;color:var(--muted);pointer-events:none;}
+.options-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.rewrite-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.toggle-track{width:36px;height:20px;background:var(--ink2);border:1px solid var(--line);border-radius:10px;position:relative;transition:all .2s;flex-shrink:0;}
+.toggle-track.on{background:rgba(127,255,212,.15);border-color:var(--mint2);}
+.toggle-thumb{width:12px;height:12px;background:var(--muted);border-radius:50%;position:absolute;top:3px;left:3px;transition:all .2s;}
+.toggle-track.on .toggle-thumb{background:var(--mint);left:19px;}
+.toggle-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.toggle-label.on{color:var(--mint);}
+.options-hint{font-size:11px;color:var(--muted);}
+.submit-btn{width:100%;background:var(--mint);border:none;color:var(--ink);font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;padding:18px 32px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:12px;}
+.submit-btn:hover{background:var(--offwhite);}
+.submit-btn:disabled{background:rgba(127,255,212,.2);color:rgba(127,255,212,.4);cursor:not-allowed;}
+.loading-wrap{padding:56px 0;text-align:center;display:none;}
+.loading-wrap.visible{display:block;}
+.loading-chars{font-size:32px;margin-bottom:18px;animation:pulseBounce 1.2s infinite;}
+.loading-text{font-size:13px;color:var(--muted);letter-spacing:.1em;}
+.results-wrap{margin-top:40px;display:none;}
+.results-wrap.visible{display:block;}
+.verdict-banner{padding:28px;border:1px solid var(--line);margin-bottom:1px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.verdict-banner.unhinged{background:rgba(127,255,212,.05);border-color:rgba(127,255,212,.35);}
+.verdict-banner.mid{background:rgba(255,229,102,.04);border-color:rgba(255,229,102,.28);}
+.verdict-banner.retard{background:rgba(255,107,107,.04);border-color:rgba(255,107,107,.22);}
+.verdict-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.verdict-word{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,8vw,68px);line-height:1;}
+.verdict-banner.unhinged .verdict-word{color:var(--mint);}
+.verdict-banner.mid .verdict-word{color:var(--yellow);}
+.verdict-banner.retard .verdict-word{color:var(--red);}
+.verdict-summary{font-size:14px;color:var(--muted);line-height:1.7;max-width:460px;flex:1;}
+.result-block{background:var(--ink);padding:28px;border:1px solid var(--line);margin-bottom:1px;}
+.result-block-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mint2);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.result-block-label::before{content:'';width:16px;height:1px;background:var(--mint2);opacity:.5;display:inline-block;}
+.result-text{font-size:14px;color:var(--offwhite);line-height:1.8;margin-bottom:18px;}
+.char-remark{border:1px solid var(--line);padding:16px 20px;display:flex;gap:14px;align-items:flex-start;}
+.char-remark.buzz{border-color:rgba(255,229,102,.2);background:rgba(255,229,102,.03);}
+.char-remark.ice{border-color:rgba(127,255,212,.15);background:rgba(127,255,212,.02);}
+.char-avatar{font-size:22px;flex-shrink:0;}
+.char-name-tag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:5px;}
+.char-remark.buzz .char-name-tag{color:var(--yellow);}
+.char-remark.ice .char-name-tag{color:var(--mint);}
+.char-text{font-family:'Instrument Serif',serif;font-style:italic;font-size:14px;line-height:1.65;color:var(--offwhite);}
+.rewrite-block{background:rgba(127,255,212,.04);border:1px solid rgba(127,255,212,.22);padding:28px;margin-bottom:1px;}
+.rewrite-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mint);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.rewrite-label::before{content:'';width:16px;height:1px;background:var(--mint);opacity:.6;display:inline-block;}
+.rewrite-text{font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;line-height:1.65;color:var(--offwhite);border-left:2px solid var(--mint);padding-left:20px;}
+.rewrite-nudge{border:1px solid var(--line);padding:18px 22px;margin-bottom:1px;font-size:13px;color:var(--muted);line-height:1.7;}
+.results-actions{margin-top:36px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.error-box{margin-top:24px;border:1px solid rgba(255,107,107,.3);padding:22px 24px;color:#FF6B6B;font-size:13px;line-height:1.7;display:none;}
+.diag-footer{border-top:1px solid var(--line);padding:22px 48px;text-align:center;font-size:11px;color:var(--muted);letter-spacing:.08em;}
+.diag-footer a{color:var(--mint2);text-decoration:none;}
+.diag-footer a:hover{color:var(--mint);}
+
+@media(max-width:900px){
+  nav{padding:18px 20px;}
+  .nav-links li:not(:last-child){display:none;}
+  .hero{grid-template-columns:1fr;padding:100px 24px 64px;}
+  .hero-right{display:none;}
+  .container{padding:0 24px;}
+  .about-grid{grid-template-columns:1fr;gap:48px;}
+  .services-header{grid-template-columns:1fr;}
+  .services-grid{grid-template-columns:1fr;}
+  .process-steps{grid-template-columns:1fr 1fr;}
+  .vocab-grid{grid-template-columns:1fr 1fr;}
+  .testi-grid{grid-template-columns:1fr;}
+  .xposts{grid-template-columns:1fr;}
+  .who-grid{grid-template-columns:1fr;}
+  .cta-buttons{flex-direction:column;align-items:center;}
+  footer{padding:28px 20px;}
+  .diag-hero{padding:80px 20px 40px;}
+  .diag-tool{padding:0 20px 80px;}
+  .type-grid{grid-template-columns:repeat(2,1fr);}
+  .diag-footer{padding:20px;}
+  .verdict-banner{flex-direction:column;gap:16px;}
+}
+@media(max-width:600px){
+  .process-steps{grid-template-columns:1fr;}
+  .vocab-grid{grid-template-columns:1fr;}
+  .about-stats{grid-template-columns:1fr 1fr;}
+  .services-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav id="mainNav">
+  <button class="nav-logo" onclick="showPage('home')">Hook Spa</button>
+  <ul class="nav-links">
+    <li><a href="#about" onclick="showPage('home')">About</a></li>
+    <li><a href="#services" onclick="showPage('home')">Services</a></li>
+    <li><a href="#work" onclick="showPage('home')">Work</a></li>
+    <li><a href="#process" onclick="showPage('home')">Process</a></li>
+    <li><button class="nav-diag-btn" id="navDiagBtn" onclick="showPage('diagnostic')">Free Diagnostic ✦</button></li>
+  </ul>
+</nav>
+
+<!-- ══ HOME ══ -->
+<div id="page-home" class="page active">
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-left">
+      <div class="hero-eyebrow anim1">Web3 Narrative & Brand Strategy</div>
+      <h1 class="hero-title anim2">Your Story<br/>is <span class="accent">broken.</span><br/>Let's fix it.</h1>
+      <p class="hero-sub anim3">I'm <strong>Lett</strong> — a content strategist and narrative architect helping <strong>early-stage Web3 brands</strong> build distinctive positioning and story foundations before the content machine starts.</p>
+      <div class="hero-actions anim4">
+        <a href="#work" class="btn-primary">See the Work</a>
+        <button class="btn-ghost" onclick="showPage('diagnostic')">Try Free Diagnostic ✦</button>
+      </div>
+    </div>
+    <div class="hero-right anim3">
+      <div class="hero-img-wrap">
+        <img src="https://i.ibb.co/Kpg5fBNM/1000572494.jpg" alt="Hook Spa Studio" onerror="this.parentElement.style.display='none'"/>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee-wrap"><div class="marquee-track">
+    <span class="marquee-item"><span class="dot">✦</span>Narrative Architecture</span><span class="marquee-item"><span class="dot">✦</span>Brand Positioning</span><span class="marquee-item"><span class="dot">✦</span>Web3 Strategy</span><span class="marquee-item"><span class="dot">✦</span>Story Foundations</span><span class="marquee-item"><span class="dot">✦</span>Content Systems</span><span class="marquee-item"><span class="dot">✦</span>Voice & Messaging</span><span class="marquee-item"><span class="dot">✦</span>Ecosystem Growth</span><span class="marquee-item"><span class="dot">✦</span>Global Operator</span>
+    <span class="marquee-item"><span class="dot">✦</span>Narrative Architecture</span><span class="marquee-item"><span class="dot">✦</span>Brand Positioning</span><span class="marquee-item"><span class="dot">✦</span>Web3 Strategy</span><span class="marquee-item"><span class="dot">✦</span>Story Foundations</span><span class="marquee-item"><span class="dot">✦</span>Content Systems</span><span class="marquee-item"><span class="dot">✦</span>Voice & Messaging</span><span class="marquee-item"><span class="dot">✦</span>Ecosystem Growth</span><span class="marquee-item"><span class="dot">✦</span>Global Operator</span>
+  </div></div>
+
+  <section class="about" id="about"><div class="container"><div class="about-grid">
+    <div class="reveal">
+      <div class="section-label">About</div>
+      <h2 class="about-heading">The <em>operator</em><br/>behind the brand</h2>
+      <p class="about-body">Most Web3 brands start with a product and hope the story follows. It doesn't. I work with <strong>early-stage founders and protocols</strong> to build the narrative infrastructure that makes everything else — content, community, growth — actually work.</p>
+      <p class="about-body">Hook Spa isn't a content agency. It's a <strong>story architecture practice</strong>. Before you post, you need to know what you stand for, who you're talking to, and why anyone should care. That's what we build first.</p>
+      <p class="about-body">Operating globally from the jump. Not regional by accident — <strong>global by design.</strong></p>
+      <div class="about-stats">
+        <div class="stat-box"><div class="stat-num">6</div><div class="stat-label">Pillar Audit Framework</div></div>
+        <div class="stat-box"><div class="stat-num">30+</div><div class="stat-label">Day Content Calendars</div></div>
+        <div class="stat-box"><div class="stat-num">Web3</div><div class="stat-label">Native, Not Adjacent</div></div>
+        <div class="stat-box"><div class="stat-num">Global</div><div class="stat-label">Operator Frame</div></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="chars-label">The Hook Spa Team</div>
+      <div class="char-card"><div class="char-emoji">🦉</div><div class="char-name">Lett</div><div class="char-role">Narrative Strategist · The Synthesizer</div><div class="char-desc">The mint-green owlet. Bridges chaos and clarity. Turns raw positioning work into story systems founders can actually use.</div></div>
+      <div class="char-card"><div class="char-emoji">🐥</div><div class="char-name">Buzz</div><div class="char-role">Trend Intelligence · The Chaotic One</div><div class="char-desc">The yellow duckling. Monitors culture, virality, and the pulse of what's moving in Web3. Knows what trends before it trends.</div></div>
+      <div class="char-card"><div class="char-emoji">🐧</div><div class="char-name">Ice</div><div class="char-role">Strategy & Clarity · The Cool Head</div><div class="char-desc">The white-and-mint penguin. Keeps everything grounded in logic. The voice that slows things down when the room gets loud.</div></div>
+    </div>
+  </div></div></section>
+
+  <section class="services" id="services"><div class="container">
+    <div class="services-header reveal">
+      <div><div class="section-label">Services</div><h2 class="services-heading">What I<br/><em>actually</em><br/>build</h2></div>
+      <p class="services-intro">Every engagement starts with the story. Not the content calendar. Not the Twitter strategy. The foundation — because without it, everything else is just noise with a schedule.</p>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card"><div class="svc-num">01</div><div class="svc-name">Narrative Audit</div><p class="svc-desc">A full six-pillar breakdown of your brand's story health — origin, villain/tension, community as hero, promised land, cultural touchstones, and recurring themes.</p><div class="svc-tags"><span class="tag">Origin Story</span><span class="tag">Tension Mapping</span><span class="tag">Promised Land</span></div></div>
+      <div class="service-card"><div class="svc-num">02</div><div class="svc-name">Brand Positioning</div><p class="svc-desc">The framework that gives your founders a clear, repeatable answer to "what are we and why does it matter." Built to survive contributor turnover and loud market cycles.</p><div class="svc-tags"><span class="tag">Messaging Framework</span><span class="tag">Voice System</span><span class="tag">Differentiation</span></div></div>
+      <div class="service-card"><div class="svc-num">03</div><div class="svc-name">Content Strategy</div><p class="svc-desc">30-day calendars built on narrative logic, not content pillars. Every post has a reason to exist. No filler, no engagement bait, no generic alpha drops.</p><div class="svc-tags"><span class="tag">30-Day Calendars</span><span class="tag">X Strategy</span><span class="tag">Narrative Logic</span></div></div>
+      <div class="service-card"><div class="svc-num">04</div><div class="svc-name">Ecosystem Growth Advisory</div><p class="svc-desc">For protocols and ecosystem funds who need a narrative layer that makes builders want to stay. Retainer-based. I sit upstream of your growth team, not inside it.</p><div class="svc-tags"><span class="tag">Protocol Narrative</span><span class="tag">Builder Retention</span><span class="tag">GTM Messaging</span></div></div>
+      <div class="service-card"><div class="svc-num">05</div><div class="svc-name">Founder Voice Coaching</div><p class="svc-desc">Your product is your story in Web3. I help founders find a distinct voice on X and in pitches — one that travels, scales, and doesn't need to be relearned every quarter.</p><div class="svc-tags"><span class="tag">X Presence</span><span class="tag">Pitch Narrative</span><span class="tag">Repeatable Voice</span></div></div>
+      <div class="service-card"><div class="svc-num">06</div><div class="svc-name">Story Foundation Sprint</div><p class="svc-desc">A focused engagement for pre-launch teams who need the full story infrastructure in place before they go public. Positioning, voice, messaging, and a 30-day launch plan.</p><div class="svc-tags"><span class="tag">Pre-Launch</span><span class="tag">Full Stack Story</span><span class="tag">Launch Ready</span></div></div>
+    </div>
+  </div></section>
+
+  <section class="portfolio" id="work"><div class="container">
+    <div class="reveal"><div class="section-label">Portfolio</div><h2 class="portfolio-heading">Real brands.<br/><em>Real</em> audits.</h2><p class="portfolio-intro">Not hypotheticals. These frameworks have been stress-tested on actual Web3 projects with real positioning problems.</p></div>
+    <div class="portfolio-list reveal">
+      <div class="pi"><div class="pi-num">01</div><div><div class="pi-type">Full Narrative Audit · DeFi</div><div class="pi-project">Cortex Agent</div><div class="pi-desc">Complete six-pillar narrative audit. Identified missing tension layer and undefined promised land — rebuilt the positioning from the villain up.</div><div class="pi-result">Client paid on-chain. "Thanks for your efforts — send us your Solana wallet."</div></div></div>
+      <div class="pi"><div class="pi-num">02</div><div><div class="pi-type">Full Narrative Audit · Infrastructure</div><div class="pi-project">Lume</div><div class="pi-desc">Six-pillar framework applied to a pre-launch infrastructure protocol. Developed cultural touchstone mapping and community-as-hero narrative arc.</div><div class="pi-result">Full story foundation locked before public launch.</div></div></div>
+      <div class="pi"><div class="pi-num">03</div><div><div class="pi-type">30-Day Content Calendar · Web3 Education</div><div class="pi-project">PROSHILLS</div><div class="pi-desc">Built a full 30-day content calendar on narrative logic. Every post mapped to a story beat — no filler, no disconnected drops.</div><div class="pi-result">30 posts mapped and ready before day one.</div></div></div>
+      <div class="pi"><div class="pi-num">04</div><div><div class="pi-type">Brand Positioning · Content Strategy</div><div class="pi-project">Hook Spa</div><div class="pi-desc">Built the Hook Spa brand from positioning through character development, content systems, and global operator frame. Practicing what I preach.</div><div class="pi-result">Global operator frame. Three characters. One story system.</div></div></div>
+    </div>
+  </div></section>
+
+  <section class="who-for"><div class="container">
+    <div class="reveal"><div class="section-label">Fit Check</div><h2 class="who-for-heading">Is this <em>for you?</em></h2></div>
+    <div class="who-grid reveal">
+      <div class="who-col for">
+        <div class="who-col-label">This is for you if</div>
+        <div class="who-item"><span class="wi-icon-for">→</span><span>You're building something real and the story hasn't caught up yet</span></div>
+        <div class="who-item"><span class="wi-icon-for">→</span><span>You want a brand that <strong>means something</strong>, not just one that posts consistently</span></div>
+        <div class="who-item"><span class="wi-icon-for">→</span><span>You're pre-launch and smart enough to know narrative is infrastructure, not decoration</span></div>
+        <div class="who-item"><span class="wi-icon-for">→</span><span>You can handle honest feedback about why your current positioning isn't working</span></div>
+        <div class="who-item"><span class="wi-icon-for">→</span><span>You want to be <strong>unhinged</strong> — distinct, opinionated, impossible to ignore</span></div>
+      </div>
+      <div class="who-col not">
+        <div class="who-col-label">This isn't for you if</div>
+        <div class="who-item"><span class="wi-icon-not">✕</span><span>You just want someone to write tweets on a schedule</span></div>
+        <div class="who-item"><span class="wi-icon-not">✕</span><span>You're looking for validation, not a real audit of what's broken</span></div>
+        <div class="who-item"><span class="wi-icon-not">✕</span><span>Your brief is "we want to be like [insert competitor]"</span></div>
+        <div class="who-item"><span class="wi-icon-not">✕</span><span>You think story is something you figure out after the product ships</span></div>
+        <div class="who-item"><span class="wi-icon-not">✕</span><span>You're comfortable being a <strong>retard brand</strong> — generic, forgettable, safe</span></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="testimonials"><div class="container">
+    <div class="reveal"><div class="section-label">What They Said</div><h2 class="testi-heading">The <em>receipts</em></h2></div>
+    <div class="testi-grid reveal">
+      <div class="tcard"><div><span class="tcard-open">"</span><p class="tcard-quote">We'll look into it, thanks for your efforts. Can you send us your Solana wallet?</p></div><div><div class="tcard-name">Cortex Agent Team</div><div class="tcard-role">Paid on-chain · Narrative Audit Client</div></div></div>
+      <div class="tcard"><div><span class="tcard-open">"</span><p class="tcard-quote">Your content has a way of melting into my soul — so thoughtful, and so well-written. Every time I come across your posts, I can't just scroll past them.</p></div><div><div class="tcard-name">Community Member</div><div class="tcard-role">X DM</div></div></div>
+      <div class="tcard"><div><span class="tcard-open">"</span><p class="tcard-quote">That breakdown on delusional positioning versus intentional positioning was really insightful. Great to see someone cut through the noise with clear strategy advice.</p></div><div><div class="tcard-name">Web3 Builder</div><div class="tcard-role">X DM</div></div></div>
+    </div>
+  </div></section>
+
+  <section class="process" id="process"><div class="container">
+    <div class="reveal"><div class="section-label">How It Works</div><h2 class="process-heading">The <em>process</em></h2></div>
+    <div class="process-steps reveal">
+      <div class="step"><div class="step-num">01</div><div class="step-title">Story Diagnosis</div><p class="step-desc">Before anything else, I audit where your narrative is broken. Most projects have a product and a vibe. Neither is a brand. We find out what's missing.</p></div>
+      <div class="step"><div class="step-num">02</div><div class="step-title">Foundation Build</div><p class="step-desc">Six-pillar framework. Origin, tension, community role, promised land, cultural context, recurring themes. The infrastructure everything else is built on.</p></div>
+      <div class="step"><div class="step-num">03</div><div class="step-title">Voice & Messaging</div><p class="step-desc">Turn the framework into words that travel. A brand voice that sounds the same across X, Discord, docs, and pitches — and doesn't require three people to maintain.</p></div>
+      <div class="step"><div class="step-num">04</div><div class="step-title">Content System</div><p class="step-desc">30-day calendar built on narrative logic. Every post has a reason. Every piece of content feeds the story — instead of just filling a schedule.</p></div>
+    </div>
+  </div></section>
+
+  <section class="vocab"><div class="container">
+    <div class="reveal"><div class="section-label">The Language</div><h2 class="vocab-heading">Hook Spa Vocabulary</h2></div>
+    <div class="vocab-grid reveal">
+      <div class="vocab-item"><div class="vocab-word">unhinged</div><div class="vocab-def">A distinctive, belief-driven brand. The good kind of unhinged — knows exactly who it is and doesn't apologize for it.</div></div>
+      <div class="vocab-item"><div class="vocab-word">retard</div><div class="vocab-def">A low-effort, generic brand. Forgettable. Could be anyone. Probably using the same three buzzwords as every competitor.</div></div>
+      <div class="vocab-item"><div class="vocab-word">teeps</div><div class="vocab-def">Tips. Practical, actionable, no fluff. If it doesn't change how you work, it's not a teep.</div></div>
+      <div class="vocab-item"><div class="vocab-word">intems</div><div class="vocab-def">Buzz and Ice — the Hook Spa characters. They interrupt naturally. They're never scripted.</div></div>
+      <div class="vocab-item"><div class="vocab-word">letts win</div><div class="vocab-def">The closer. Not a hype line — a reframe. The moment the whole post lands.</div></div>
+      <div class="vocab-item"><div class="vocab-word">CS</div><div class="vocab-def">Comments section. Where the real conversation happens. Where positioning gets tested in the wild.</div></div>
+    </div>
+  </div></section>
+
+  <section class="xfeed"><div class="container">
+    <div class="xfeed-header reveal">
+      <h2 class="xfeed-heading">Latest from <em>the feed</em></h2>
+      <a href="https://twitter.com/Letts_W" target="_blank" class="btn-ghost" style="font-size:11px;padding:10px 20px;">Follow @Letts_W ↗</a>
+    </div>
+    <div class="xposts reveal">
+      <div class="xpost"><p class="xpost-text">most web3 brands don't have a story problem. they have a belief problem. they don't actually know what they stand for beyond "we're faster and cheaper." that's not a brand. that's a spec sheet.</p><div class="xpost-meta"><span class="xpost-handle">@Letts_W</span><span>Brand Positioning</span></div></div>
+      <div class="xpost"><p class="xpost-text">delusional positioning: "we're the future of finance." intentional positioning: "we're building for the people your bank decided weren't worth serving." one is a vibe. the other is a story.</p><div class="xpost-meta"><span class="xpost-handle">@Letts_W</span><span>Narrative Teep</span></div></div>
+      <div class="xpost"><p class="xpost-text">the audit always reveals the same thing. founders know what they built. they don't know why anyone should care. those are different questions and only one of them builds a brand.</p><div class="xpost-meta"><span class="xpost-handle">@Letts_W</span><span>Narrative Architecture</span></div></div>
+    </div>
+  </div></section>
+
+  <section class="cta-section"><div class="cta-bg"></div><div class="container" style="position:relative;">
+    <div class="cta-label reveal">letts solve your WHY</div>
+    <h2 class="cta-heading reveal">Your brand is<br/>one story away from<br/><em>unhinged.</em></h2>
+    <p class="cta-sub reveal">Buzz already found the trend. Ice already has the strategy. Now Lett just needs to know if you're ready to stop being a retard brand.</p>
+    <div class="cta-buttons reveal">
+      <a href="https://twitter.com/Letts_W" target="_blank" class="btn-primary">Find Me on X → @Letts_W</a>
+      <button class="btn-ghost" onclick="showPage('diagnostic')">Try Free Diagnostic ✦</button>
+    </div>
+  </div></section>
+
+  <footer>
+    <div class="footer-logo">Hook Spa</div>
+    <div class="footer-meta">@Letts_W · Web3 Narrative & Brand Strategy · Global</div>
+    <a href="https://twitter.com/Letts_W" target="_blank" class="footer-link">X / Twitter ↗</a>
+  </footer>
+</div>
+
+<!-- ══ DIAGNOSTIC ══ -->
+<div id="page-diagnostic" class="page">
+  <div class="diag-hero">
+    <div class="diag-badge">Free Diagnostic · No DM Required</div>
+    <h1 class="diag-title">Get Your<br/><em>Story Checked</em></h1>
+    <p class="diag-sub">Paste your hook, post, or bio. Buzz, Ice, and Lett will tell you exactly what's working, what's broken, and whether you're <strong>unhinged</strong> or a <strong>retard brand</strong>.</p>
+  </div>
+  <div class="diag-tool">
+    <div class="diag-step-label">Step 01 — What are you submitting?</div>
+    <div class="type-grid">
+      <button class="type-btn active" onclick="setType(this,'hook')"><span class="type-icon">🪝</span><span class="type-name">Hook</span></button>
+      <button class="type-btn" onclick="setType(this,'post')"><span class="type-icon">📝</span><span class="type-name">Full Post</span></button>
+      <button class="type-btn" onclick="setType(this,'bio')"><span class="type-icon">👤</span><span class="type-name">Brand Bio</span></button>
+      <button class="type-btn" onclick="setType(this,'voice')"><span class="type-icon">🔊</span><span class="type-name">Voice Audit</span></button>
+    </div>
+    <div class="diag-step-label">Step 02 — Drop it here</div>
+    <p class="input-hint" id="inputHint">Paste your opening line — the first thing people read.</p>
+    <div class="input-wrap">
+      <textarea id="diagInput" placeholder="Paste your hook here..." maxlength="2000" oninput="onInput()"></textarea>
+      <span class="char-count" id="charCount">0 / 2000</span>
+    </div>
+    <div class="options-row">
+      <label class="rewrite-toggle" onclick="toggleRewrite()">
+        <div class="toggle-track" id="toggleTrack"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label" id="toggleLabel">Rewrite off</span>
+      </label>
+      <span class="options-hint">Rewrite only runs if your submission needs it</span>
+    </div>
+    <button class="submit-btn" id="submitBtn" disabled onclick="runDiagnostic()">
+      <span>✦</span> Run the Diagnostic <span>✦</span>
+    </button>
+    <div class="loading-wrap" id="loadingWrap">
+      <div class="loading-chars">🐥💭🐧</div>
+      <div class="loading-text" id="loadingText">Buzz is reading it...</div>
+    </div>
+    <div class="error-box" id="errorBox">Something went wrong. Ice says try again — he's not impressed either.</div>
+    <div class="results-wrap" id="resultsWrap"></div>
+  </div>
+  <div class="diag-footer">A free taste of Hook Spa at work. For the full audit → <a href="https://twitter.com/Letts_W" target="_blank">@Letts_W on X</a></div>
+</div>
+
+<script>
+// ── PAGE SWITCH ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const btn = document.getElementById('navDiagBtn');
+  if (name === 'diagnostic') {
+    btn.textContent = '← Back to Site';
+    btn.onclick = () => showPage('home');
+  } else {
+    btn.textContent = 'Free Diagnostic ✦';
+    btn.onclick = () => showPage('diagnostic');
+    initReveal();
+  }
+}
+
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cursor.style.transform=`translate(${mx-4}px,${my-4}px)`;
+});
+(function animRing(){
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.transform=`translate(${rx-16}px,${ry-16}px)`;
+  requestAnimationFrame(animRing);
+})();
+document.addEventListener('mouseover', e => {
+  if(e.target.closest('a,button,.char-card,.service-card,.pi,.tcard,.xpost,.vocab-item')){
+    ring.style.width='52px'; ring.style.height='52px';
+    ring.style.borderColor='rgba(127,255,212,.7)';
+    ring.style.marginLeft='-10px'; ring.style.marginTop='-10px';
+  }
+});
+document.addEventListener('mouseout', e => {
+  if(e.target.closest('a,button,.char-card,.service-card,.pi,.tcard,.xpost,.vocab-item')){
+    ring.style.width='32px'; ring.style.height='32px';
+    ring.style.borderColor='rgba(127,255,212,.4)';
+    ring.style.marginLeft='0'; ring.style.marginTop='0';
+  }
+});
+
+// ── NAV ──
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── REVEAL ──
+function initReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => { el.classList.remove('visible'); obs.observe(el); });
+}
+initReveal();
+
+// ── DIAGNOSTIC ──
+const HINTS = {
+  hook:  ['Paste your opening line — the first thing people read.', 'Paste your hook here...'],
+  post:  ['Paste the full post — hook, body, and closer.', 'Paste your full post here...'],
+  bio:   ['Paste your profile bio or brand description.', 'Paste your bio here...'],
+  voice: ['Paste 3–5 posts or brand copy samples for a voice audit.', 'Paste multiple posts or samples here...'],
+};
+let selectedType = 'hook';
+let wantsRewrite = false;
+
+function setType(btn, type) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedType = type;
+  document.getElementById('inputHint').textContent = HINTS[type][0];
+  document.getElementById('diagInput').placeholder = HINTS[type][1];
+  document.getElementById('diagInput').value = '';
+  document.getElementById('charCount').textContent = '0 / 2000';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('resultsWrap').classList.remove('visible');
+  document.getElementById('resultsWrap').innerHTML = '';
+  document.getElementById('errorBox').style.display = 'none';
+}
+
+function onInput() {
+  const len = document.getElementById('diagInput').value.length;
+  document.getElementById('charCount').textContent = len + ' / 2000';
+  document.getElementById('submitBtn').disabled = len < 10;
+}
+
+function toggleRewrite() {
+  wantsRewrite = !wantsRewrite;
+  document.getElementById('toggleTrack').classList.toggle('on', wantsRewrite);
+  const lbl = document.getElementById('toggleLabel');
+  lbl.textContent = wantsRewrite ? 'Rewrite on' : 'Rewrite off';
+  lbl.classList.toggle('on', wantsRewrite);
+}
+
+const LOAD_MSGS = ['Buzz is reading it...','Ice is already judging...','Lett is running the audit...','Building your verdict...'];
+
+async function runDiagnostic() {
+  const text = document.getElementById('diagInput').value.trim();
+  if (!text || text.length < 10) return;
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('loadingWrap').classList.add('visible');
+  document.getElementById('resultsWrap').classList.remove('visible');
+  document.getElementById('resultsWrap').innerHTML = '';
+  document.getElementById('errorBox').style.display = 'none';
+
+  let msgIdx = 0;
+  const loadEl = document.getElementById('loadingText');
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % LOAD_MSGS.length;
+    loadEl.textContent = LOAD_MSGS[msgIdx];
+  }, 2000);
+
+  try {
+    const res = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: selectedType, text, wantsRewrite })
+    });
+    const result = await res.json();
+    clearInterval(msgTimer);
+    document.getElementById('loadingWrap').classList.remove('visible');
+    if (!res.ok) throw new Error(result.error || 'API error');
+    renderResults(result);
+  } catch(err) {
+    clearInterval(msgTimer);
+    document.getElementById('loadingWrap').classList.remove('visible');
+    document.getElementById('errorBox').style.display = 'block';
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
+}
+
+const EMOJI = { unhinged:'🦉', mid:'🤔', retard:'💀' };
+
+function renderResults(r) {
+  const rewriteHTML = r.needsRewrite && wantsRewrite && r.rewrite
+    ? `<div class="rewrite-block"><div class="rewrite-label">Hook Spa Rewrite</div><p class="rewrite-text">${esc(r.rewrite)}</p></div>`
+    : r.needsRewrite && !wantsRewrite
+    ? `<div class="rewrite-nudge">✦ This one needs a rewrite. Toggle it on and run it again to see it Hook Spa style.</div>`
+    : '';
+
+  document.getElementById('resultsWrap').innerHTML = `
+    <div class="verdict-banner ${r.verdictClass}">
+      <div><div class="verdict-tag">Hook Spa Verdict</div><div class="verdict-word">${esc(r.verdict)} ${EMOJI[r.verdictClass]||''}</div></div>
+      <p class="verdict-summary">${esc(r.summary)}</p>
+    </div>
+    <div class="result-block">
+      <div class="result-block-label">Hook Diagnosis</div>
+      <p class="result-text">${esc(r.hookDiagnosis)}</p>
+      <div class="char-remark buzz"><div class="char-avatar">🐥</div><div><div class="char-name-tag">Buzz</div><p class="char-text">${esc(r.buzzRemark)}</p></div></div>
+    </div>
+    <div class="result-block">
+      <div class="result-block-label">Structure Breakdown</div>
+      <p class="result-text">${esc(r.structureBreakdown)}</p>
+      <div class="char-remark ice"><div class="char-avatar">🐧</div><div><div class="char-name-tag">Ice</div><p class="char-text">${esc(r.iceRemark)}</p></div></div>
+    </div>
+    ${rewriteHTML}
+    <div class="results-actions">
+      <button class="btn-ghost" onclick="resetDiagnostic()">Run Another</button>
+      <a href="https://twitter.com/Letts_W" target="_blank" class="btn-primary">Get the Full Audit → @Letts_W</a>
+    </div>`;
+
+  document.getElementById('resultsWrap').classList.add('visible');
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('resultsWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function resetDiagnostic() {
+  document.getElementById('diagInput').value = '';
+  document.getElementById('charCount').textContent = '0 / 2000';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('resultsWrap').classList.remove('visible');
+  document.getElementById('resultsWrap').innerHTML = '';
+  document.getElementById('errorBox').style.display = 'none';
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+</script>
+</body>
+</html>
